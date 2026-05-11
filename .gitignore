@@ -1,0 +1,4 @@
+.env
+venv
+/venv
+Run cmd:uvicorn src.main:app --reload
