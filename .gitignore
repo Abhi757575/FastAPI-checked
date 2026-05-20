@@ -2,3 +2,6 @@
 venv
 /venv
 Run cmd:uvicorn src.main:app --reload
+Alembic:
+    pip install alembic
+    alembic init -t async migrations

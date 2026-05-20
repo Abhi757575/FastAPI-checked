@@ -2,7 +2,8 @@ from pydantic import BaseModel, ConfigDict
 from typing import Optional
 import uuid
 from datetime import date, datetime
-
+from src.reviews.schemas import ReviewModel
+from typing import List
 
 class BookCreateModel(BaseModel):
     title: str
@@ -25,6 +26,9 @@ class Book(BaseModel):
     language: str
     created_at: datetime
     updated_at: datetime
+
+class BookDetailModel(Book):
+    reviews: List[ReviewModel]
 
 
 class BookUpdate(BaseModel):

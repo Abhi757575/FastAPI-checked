@@ -17,7 +17,7 @@ AsyncSessionLocal = sessionmaker(
 
 async def init_db():
     async with engine.begin() as conn:
-        from src.books.models import Book
+        from src.db.models import Book
 
         async with engine.begin() as conn:
             await conn.run_sync(SQLModel.metadata.create_all)

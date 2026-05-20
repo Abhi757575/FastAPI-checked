@@ -3,7 +3,7 @@ from unittest import result
 from sqlmodel import desc, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 from .schemas import BookCreateModel, BookUpdate
-from .models import Book
+from src.db.models import Book
 from datetime import datetime
 
 class BookService:
@@ -12,18 +12,24 @@ class BookService:
         result = await session.execute(statement)
         return result.scalars().all()
     
+    async def get_user_book_submissions(self,user_uid: str, session:AsyncSession):
+        statement = select(Book).where(Book.user_uid== user_uid).order_by(desc(Book.created_at))
+        result = await session.execute(statement)
+        return result.scalars().all()
+    
     async def get_book(self, book_uid:str, session:AsyncSession):
         statement = select(Book).where(Book.uid == book_uid)
         result = await session.execute(statement)
         return result.scalars().first()
 
-    async def create_book(self, book_data:BookCreateModel, session:AsyncSession):
+    async def create_book(self, book_data:BookCreateModel,user_uid:str, session:AsyncSession):
         book_data_dict = book_data.model_dump()
 
         new_book = Book(
             **book_data_dict
         )
         new_book.published_date = datetime.strptime(book_data_dict['published_date'], "%Y-%m-%d")
+        new_book.user_uid = user_uid
         session.add(new_book)
         await session.commit()
         await session.refresh(new_book)
