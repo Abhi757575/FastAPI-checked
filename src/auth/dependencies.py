@@ -4,6 +4,7 @@ from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlmodel.ext.asyncio.session import AsyncSession
 from src.errors import (
+    AccountNotVerified,
     InvalidToken,
     RefreshTokenRequired,
     AccessTokenRequired,
@@ -127,8 +128,9 @@ class RoleChecker:
         current_user=Depends(get_current_user)
     ) -> Any:
 
+        if not current_user.is_verified:
+            raise AccountNotVerified()
         if current_user.role in self.allowed_roles:
             return True
-
         raise InsufficientPermission()
         #only here custom error modelling is used, rest need to be updated to use custom errors as well

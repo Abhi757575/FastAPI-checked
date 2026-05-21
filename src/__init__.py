@@ -13,14 +13,15 @@ from src.errors import (
     InvalidCredentials,
     TagAlreadyExists,
     TagNotFound,
-    UserAlreadyExists,
-    UserNotFound,
+    UserAlreadyExistsException,
+    UserNotFoundException,
     BookNotFound,
     InvalidToken,
     AccessTokenRequired,
     RefreshTokenRequired,
     InsufficientPermission,
-    RevokedToken
+    RevokedToken,
+    register_all_errors
 )
 
 
@@ -38,26 +39,40 @@ async def life_span(app: FastAPI):
 
 version = "v1"
 
+description = """ A Rest API for a book review web service """
+
 app = FastAPI(
     title="Book API",
-    description="A simple API to manage books",
+    description=description,
     version = version,
+    license_info={
+        "name": "MIT License",
+        "url": "https://opensource.org/license/mit/"
+    },
+    contact={
+        "name": "Abhi757575",
+        "github": "https://github.com/Abhi757575"
+    },
+    terms_of_service="https://example.com/terms/",
+    open_api_url = f"/api/{version}/openapi.json",
+    docs_url = f"/api/{version}/docs",
+    redoc_url = f"/api/{version}/redoc",
 )
 
 def register_error_handlers(app: FastAPI):
     app.add_exception_handler(
-        UserAlreadyExists,
+        UserAlreadyExistsException,
         create_exception_handler(
             status_code=status.HTTP_403_FORBIDDEN,
             initial_detail={
                 "message": "A User with email already exists",
-                "error_code": "UserAlreadyExists"
+                "error_code": "UserAlreadyExistsException",
             },
         ),
     )
 
     app.add_exception_handler(
-        UserNotFound,
+        UserNotFoundException,
         create_exception_handler(
             status_code=status.HTTP_404_NOT_FOUND,
             initial_detail={
@@ -180,6 +195,7 @@ def register_error_handlers(app: FastAPI):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 register_middleware(app) 
+register_all_errors(app)
 
 app.include_router(book_router, prefix=f"/api/{version}/books", tags=["Books"])
 app.include_router(auth_Router, prefix=f"/api/{version}/auth", tags=["Authentication"])

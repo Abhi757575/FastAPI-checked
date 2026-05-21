@@ -1,6 +1,7 @@
 from typing import Any, Callable
 from fastapi.requests import Request
 from fastapi.responses import JSONResponse
+from fastapi import FastAPI, status
 
 class BooklyException(Exception):
     """This is a base class for exceptions for all bookly errors"""
@@ -22,7 +23,7 @@ class RefreshTokenRequired(BooklyException):
     """Raised when a refresh token is required."""
 
 
-class UserAlreadyExists(BooklyException):
+class UserAlreadyExistsException(BooklyException):
     """Raised when a user already exists during signup."""
 
 
@@ -46,7 +47,7 @@ class TagAlreadyExists(BooklyException):
     """Raised when a tag already exists."""
 
 
-class UserNotFound(BooklyException):
+class UserNotFoundException(BooklyException):
     """Raised when a user is not found."""
 
 
@@ -59,3 +60,24 @@ def create_exception_handler(status_code: int, initial_detail: any) -> Callable[
         )
     
     return exception_handler
+
+class AccountNotVerified(Exception):
+    """Exception raised when the user account is not verified."""
+    pass
+
+
+def register_all_errors(app: FastAPI):
+
+    app.add_exception_handler(
+        AccountNotVerified,
+
+        create_exception_handler(
+            status_code=status.HTTP_403_FORBIDDEN,
+
+            initial_detail={
+                "message": "Account Not Verified",
+                "error_code": "account_not_verified",
+                "resolution": "Please check your email for verification details"
+            },
+        ),
+    )
